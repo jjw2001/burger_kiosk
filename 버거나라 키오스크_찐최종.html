@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>버거나라 키오스크</title>
+<style>
+:root{--bg:#fff;--card:#fff;--ink:#22160d;--mute:#6f6258;--edge:#22160d;--brand:#e0301e;--on:#fff;--soft:#fff1b8;--acc:#ffc21a;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.4 "Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;font-variant-numeric:tabular-nums;-webkit-user-select:none;user-select:none}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+button:disabled{opacity:.35;cursor:not-allowed}
+.wrap{max-width:1200px;margin:0 auto;padding:16px}
+h1{margin:0;font-size:clamp(26px,5vw,40px);font-weight:900;letter-spacing:-.02em}
+h2{margin:0 0 12px;font-size:22px}
+.top{display:flex;align-items:center;gap:4px 14px;flex-wrap:wrap;margin-bottom:12px}
+.top p{margin:0;font-weight:700;color:var(--mute)}
+.btn,.card,.seg button,.choice button,.chip,.qty button{border:3px solid var(--edge);box-shadow:0 4px 0 var(--edge)}
+.btn:active:not(:disabled),.card:active,.seg button:active,.choice button:active,.chip:active,.qty button:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
+.tbar{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.tbar b{font-size:26px;min-width:118px}
+.track{flex:1;height:20px;border:3px solid var(--edge);border-radius:999px;background:var(--soft);overflow:hidden}
+.track i{display:block;height:100%;background:var(--acc);transition:width 1s linear}
+.low b{color:var(--brand)}
+.low i{background:var(--brand)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) clamp(350px,38vw,440px);gap:18px;align-items:start}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 16px;padding-top:8px}
+.card{position:relative;background:var(--card);border-radius:22px;padding:22px 8px 18px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.em{font-size:clamp(44px,8vw,68px);line-height:1.15;white-space:nowrap}
+.nm{font-weight:800;font-size:clamp(20px,3.2vw,26px)}
+.pr{color:var(--brand);font-weight:800;font-size:clamp(18px,2.8vw,22px)}
+.badge{position:absolute;top:-14px;right:-8px;min-width:44px;height:44px;padding:0 10px;border-radius:22px;background:var(--brand);color:var(--on);border:3px solid var(--edge);display:grid;place-items:center;font-weight:900;font-size:22px}
+.cart,.panel{background:var(--card);border:3px solid var(--edge);border-radius:22px;padding:18px;box-shadow:0 4px 0 var(--edge)}
+.cart{position:sticky;top:calc(14px + env(safe-area-inset-top,0px))}
+.cart h2{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:2px dashed var(--mute)}
+.cart h2 small{font-size:18px;color:var(--mute)}
+.lines{max-height:calc(100vh - 300px);max-height:calc(100dvh - 300px);min-height:90px;overflow:auto}
+.empty{margin:0;padding:34px 0;text-align:center;color:var(--mute);font-weight:700;font-size:20px}
+.line{padding:12px 0;border-bottom:1px dashed var(--mute)}
+.l1,.l2{display:flex;align-items:center;gap:10px}
+.l2{justify-content:space-between;margin-top:6px}
+.le{font-size:36px;white-space:nowrap}
+.ln{flex:1;font-size:22px}
+.lp{font-size:22px}
+.l2 small{color:var(--mute);font-size:18px}
+.qty{display:flex;align-items:center;gap:10px;margin-left:auto}
+.qty button{width:60px;height:60px;border-radius:50%;background:var(--soft);font-weight:900;font-size:34px;line-height:1;box-shadow:0 3px 0 var(--edge)}
+.qty span{min-width:40px;text-align:center;font-weight:900;font-size:30px}
+.sum{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0;font-weight:800;font-size:20px}
+.sum strong{font-size:34px;color:var(--brand)}
+.row2{display:flex;gap:10px}
+.btn{flex:1;padding:16px 8px;border-radius:18px;font-weight:900;font-size:20px}
+.primary,.choice .on,.seg .on{background:var(--brand);color:var(--on)}
+.ghost{background:var(--soft)}
+.chip{display:flex;align-items:center;gap:8px;margin-left:auto;padding:8px 18px;border-radius:999px;background:var(--card);font-weight:800;font-size:20px;box-shadow:0 3px 0 var(--edge)}
+.chip small{color:var(--mute);font-weight:700;font-size:16px}
+.pay{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.choice{display:flex;gap:10px;margin-bottom:18px}
+.choice button{flex:1;padding:18px 6px;border-radius:18px;background:var(--soft);font-weight:800;font-size:22px}
+.hello{text-align:center;padding-top:3vh;max-width:760px;margin:0 auto}
+.hello h1{font-size:clamp(36px,7vw,60px)}
+.hello h2{margin:26px 0 12px;font-size:clamp(20px,3vw,26px)}
+.hello .hint{margin:18px 0 0;color:var(--mute);font-weight:700}
+.seg{display:flex;gap:12px}
+.seg button{flex:1;padding:16px 4px;border-radius:18px;background:var(--soft);font-weight:900;font-size:clamp(22px,3.5vw,30px)}
+.mode{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.mode .card{padding:30px 12px 26px;gap:8px}
+.mode .em{font-size:clamp(64px,12vw,96px)}
+.mode small{color:var(--mute);font-weight:700;font-size:18px}
+.done{text-align:center;padding:24px 0}
+.big{font-size:84px;line-height:1.1}
+.done p{margin:6px 0;font-weight:700;font-size:20px}
+.no{display:inline-block;margin:10px 0 14px;padding:6px 34px;border:4px dashed var(--edge);border-radius:20px;font-size:64px;font-weight:900;color:var(--brand)}
+.done .btn{flex:none;padding:18px 48px;margin-top:18px;font-size:22px}
+#toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));z-index:20;max-width:90vw;padding:12px 24px;border-radius:999px;background:var(--ink);color:#fff;font-weight:800;opacity:0;transform:translate(-50%,-30px);transition:.2s;pointer-events:none}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:700px){
+.grid,.pay,.mode{grid-template-columns:1fr}
+.cart{top:auto;bottom:0;border-radius:22px 22px 0 0;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+.lines{max-height:26vh;min-height:0}
+.chip{margin-left:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="toast" role="status"></div>
+<script>
+const MENU=[['🍔','햄버거',1000],['🧀🍔','치즈버거',2000],['🐔🍔','치킨버거',2500],['🥓🍔','베이컨버거',3000]];
+const items=MENU.map(([e,n,p],id)=>({id,e,n,p}));
+const MAX=3,LIMITS=[60,90,120,0],DINE=['🍽️ 매장','🛍️ 포장'],PAYS=['💳 카드','💵 현금'];
+const $=s=>document.querySelector(s);
+const won=n=>n.toLocaleString('ko-KR')+'원';
+const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+let screen='start',limit=90,left=90,endAt=0,timer=null,dine=DINE[0],pay=PAYS[0],seq=0,no='',tt;
+const cart=new Map();
+const L=()=>[...cart].map(([i,q])=>({...items[i],q}));
+const sum=()=>L().reduce((s,l)=>s+l.p*l.q,0);
+const cnt=()=>L().reduce((s,l)=>s+l.q,0);
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)}
+function stopT(){clearInterval(timer);timer=null}
+function startT(){
+stopT();left=limit;if(!limit)return;endAt=Date.now()+limit*1000;
+timer=setInterval(()=>{
+left=Math.max(0,Math.ceil((endAt-Date.now())/1000));
+const m=$('#tm'),b=$('#tb'),p=$('#tp');
+if(m)m.textContent=fmt(left);
+if(b)b.style.width=left/limit*100+'%';
+if(p)p.classList.toggle('low',left<=10);
+if(!left){stopT();screen='timeup';render()}
+},500)}
+
+const bar=()=>!limit?'':`<div class="tbar${left<=10?' low':''}" id="tp"><b>⏱ <span id="tm">${fmt(left)}</span></b><div class="track"><i id="tb" style="width:${left/limit*100}%"></i></div></div>`;
+const row=(l,ctl)=>`<div class="line"><div class="l1"><span class="le">${l.e}</span><b class="ln">${l.n}</b><b class="lp">${won(l.p*l.q)}</b></div><div class="l2"><small>${won(l.p)} × ${l.q}</small>`+(ctl?`<div class="qty"><button data-a="dec" data-v="${l.id}" aria-label="${l.n} 빼기">−</button><span>${l.q}</span><button data-a="inc" data-v="${l.id}" aria-label="${l.n} 더하기"${l.q>=MAX?' disabled':''}>+</button></div>`:'')+`</div></div>`;
+const choice=(a,cur,opts)=>`<div class="choice">${opts.map(o=>`<button data-a="${a}" data-v="${o}" class="${o===cur?'on':''}">${o}</button>`).join('')}</div>`;
+
+const startView=()=>`<div class="hello"><h1>🍔 버거나라</h1><h2>⏱ 제한 시간을 골라요</h2><div class="seg">${LIMITS.map(s=>`<button data-a="limit" data-v="${s}" class="${s===limit?'on':''}">${s?s+'초':'없음'}</button>`).join('')}</div><h2>어디에서 먹을까요?</h2><div class="mode"><button class="card" data-a="dine" data-v="0"><span class="em">🍽️</span><span class="nm">매장에서 먹기</span><small>여기서 먹고 갈래요</small></button><button class="card" data-a="dine" data-v="1"><span class="em">🛍️</span><span class="nm">포장하기</span><small>가져가서 먹을래요</small></button></div><p class="hint">${limit?'매장이나 포장을 누르면 시간이 시작돼요!':'시간 제한 없이 천천히 주문해 봐요!'}</p></div>`;
+
+const orderView=()=>`<div class="top"><h1>🍔 버거나라</h1><p>먹고 싶은 버거를 눌러 보세요 (메뉴마다 최대 ${MAX}개)</p><button class="chip" data-a="toggle">${dine}<small>바꾸기</small></button></div>${bar()}
+<div class="grid"><section><div class="cards">${items.map(x=>`<button class="card" data-a="add" data-v="${x.id}">${cart.has(x.id)?`<b class="badge">${cart.get(x.id)}</b>`:''}<span class="em">${x.e}</span><span class="nm">${x.n}</span><span class="pr">${won(x.p)}</span></button>`).join('')}</div></section>
+<aside class="cart"><h2>🧾 내 주문<small>${cnt()}개</small></h2>
+<div class="lines">${cart.size?L().map(l=>row(l,1)).join(''):'<p class="empty">버거를 눌러 담아 보세요</p>'}</div>
+<div class="sum"><span>합계</span><strong>${won(sum())}</strong></div>
+<div class="row2"><button class="btn ghost" data-a="clear"${cart.size?'':' disabled'}>모두 지우기</button><button class="btn primary" data-a="checkout"${cart.size?'':' disabled'}>결제하기</button></div></aside></div>`;
+
+const checkoutView=()=>`<div class="top"><h1>🧾 주문 확인</h1><p>${dine} 주문이에요. 메뉴와 금액이 맞는지 확인해요</p></div>${bar()}
+<div class="pay"><section class="panel"><h2>주문 내역 (${cnt()}개)</h2>${L().map(l=>row(l,0)).join('')}<div class="sum"><span>결제할 금액</span><strong>${won(sum())}</strong></div></section>
+<section class="panel"><h2>어떻게 결제할까요?</h2>${choice('pay',pay,PAYS)}
+<div class="row2"><button class="btn ghost" data-a="back">메뉴 더 담기</button><button class="btn primary" data-a="done">${won(sum())} 결제하기</button></div></section></div>`;
+
+const doneView=()=>`<div class="done"><div class="big">🎉</div><h1>주문이 완료되었어요!</h1>${limit?`<p>⏱ ${fmt(left)} 남기고 성공!</p>`:''}<p>주문번호</p><div class="no">${no}</div><p>${dine}</p><p>${pay} 결제 ${won(sum())}</p><p>번호가 불리면 음식을 받으러 오세요.</p><button class="btn primary" data-a="home">새 주문하기</button></div>`;
+const timeupView=()=>`<div class="done"><div class="big">⏰</div><h1>시간이 끝났어요!</h1><p>결제를 끝내지 못했어요. 다시 도전해 봐요!</p><button class="btn primary" data-a="home">다시 하기</button></div>`;
+
+function render(){
+const sc=$('.lines')?.scrollTop||0;
+$('#app').innerHTML=({start:startView,order:orderView,checkout:checkoutView,done:doneView,timeup:timeupView})[screen]();
+const l=$('.lines');if(l)l.scrollTop=sc;
+}
+
+document.addEventListener('click',e=>{
+const b=e.target.closest('[data-a]');if(!b||b.disabled)return;
+const a=b.dataset.a,v=b.dataset.v,id=+v;
+if(a==='limit')limit=id;
+else if(a==='dine'){dine=DINE[id];cart.clear();screen='order';startT()}
+else if(a==='toggle')dine=dine===DINE[0]?DINE[1]:DINE[0];
+else if(a==='add'||a==='inc'){const q=cart.get(id)||0;if(q>=MAX){toast('한 메뉴는 '+MAX+'개까지 담을 수 있어요');return}cart.set(id,q+1)}
+else if(a==='dec'){const q=cart.get(id)-1;q?cart.set(id,q):cart.delete(id)}
+else if(a==='clear')cart.clear();
+else if(a==='pay')pay=v;
+else if(a==='checkout')screen='checkout';
+else if(a==='back')screen='order';
+else if(a==='done'){stopT();screen='done';no=String(++seq).padStart(3,'0')}
+else if(a==='home'){stopT();cart.clear();screen='start'}
+if(['checkout','back','done','home','dine'].includes(a))scrollTo(0,0);
+render();
+});
+render();
+</script>
+</body>
+</html>
